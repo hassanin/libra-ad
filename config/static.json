@@ -1,0 +1,7 @@
+{
+    "logDirectory":"./logs",
+    "logLevel":"debug",
+    "enableConsoleLog":true,
+    "mongodBHost":"localhost",
+    "mongodBPort":"27017"
+}
