@@ -22,7 +22,7 @@ if(!global.logger)
 const logger = winston.createLogger({
   level: 'debug',
   format: myFormat,
-  defaultMeta: { service: 'user-service' },
+  //defaultMeta: { service: 'user-service' },
   transports: [
     //
     // - Write to all logs with level `info` and below to `combined.log` 

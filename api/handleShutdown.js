@@ -12,7 +12,7 @@ process.on('SIGINT', function (){
 function executeShutdown()
 {
   logger.info(`Shutting Down application!`);
-  global.mongoDbServer.destroy(); 
+  //global.mongoDbServer.destroy(); 
   process.exit();
 }
 
