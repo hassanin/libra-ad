@@ -79,7 +79,7 @@ class mongoConnector
             else
             {
                 logger.info(`found user with ${username} to be ${util.inspect(myUser)}`);
-                return new userClass(myUser.username,myUser.password,myUser.Groups);
+                return this.makeUser(myUser);
             }
         }
         catch(ex)
@@ -88,7 +88,33 @@ class mongoConnector
             throw ex;
         }
     }
+    async appendGroup(username,groups)
+    {
+        var results = [];
+        groups.forEach(async s=> {
+            var updateQuery = {$addToSet:{Groups:s}}; // checks if the group already exists
+            // findOneAndUpdate does an atomic lookup and write which locks the database (at what level is the lock placed??)
+        var result = await this._collectionHandler.findOneAndUpdate({username:username},updateQuery);
+        logger.debug(`database update result for updating groups is ${util.inspect(result)}`);
+        results.push(result);
+        })
+        
+        return results;
+    }
 
+    async removeGroup(username,groups)
+    {
+        var results = [];
+        groups.forEach(async s=> {
+            var updateQuery = {$pull:{Groups:s}}; // checks if the group already exists
+            // findOneAndUpdate does an atomic lookup and write which locks the database (at what level is the lock placed??)
+        var result = await this._collectionHandler.findOneAndUpdate({username:username},updateQuery);
+        logger.debug(`database update result for updating groups is ${util.inspect(result)}`);
+        results.push(result);
+        })
+        
+        return results;
+    }
     async getAllUsers()
     {
         try
@@ -103,7 +129,7 @@ class mongoConnector
             {
                 var allUsers=[];
                 myUsers.forEach((myUser) => {
-                    allUsers.push(new userClass(myUser.username,myUser.password,myUser.Groups));
+                    allUsers.push(this.makeUser(myUser));
                 });
                 
                 return allUsers;
@@ -116,7 +142,10 @@ class mongoConnector
         }
     }
     
-
+    makeUser(databaseUser)
+    {
+        return new userClass(databaseUser._id,databaseUser.username,databaseUser.password,databaseUser.Groups,databaseUser.userType);
+    }
     // private fields (by convention)
     _db;
     // _collectionName = 'users';

@@ -22,3 +22,5 @@ function executeShutdown()
     logger.error(e.stack);
     process.exit(1);
   });
+
+  //add code tp close all database connections here

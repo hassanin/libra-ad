@@ -4,5 +4,6 @@
     "enableConsoleLog":true,
     "mongoURL":"mongodb://localhost:27017",
     "mongodBHost":"localhost",
-    "mongodBPort":"27017"
+    "mongodBPort":"27017",
+    "shouldUpdateToken":false
 }

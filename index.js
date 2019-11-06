@@ -8,13 +8,21 @@ var app = express();
 var userClass =require('./api/userClass');
 var mongoConnector = require('./api/mongoConnector');
 require('./api/handleShutdown');
-var myApiClass = require('./api/extern-api');
+var signInRoute = require('./api/signInRoute');
+var myApiClass = require('./api/extern-api'); // Singelton
 // var authenticate = require("./api/authenticate");
-
+global.myAPi ={}; // will be initilized later in the app
 // app.use(`/authenticate`,authenticate);
+var fs=require('fs');
+var path = require('path');
+fs.readFileASync = util.promisify(fs.readFile);
 logger.debug("Hello there!");
 
 const port = global.staticOptions.port || "3002";
+
+// Application Routes
+app.use('/api',signInRoute);
+
 app.listen(port,async(err)=>{
     if(!err)
     {
@@ -26,22 +34,27 @@ app.listen(port,async(err)=>{
     }
 });
 
-function mainMethod()
+// Do all initalization here
+function initMethod()
 {
     return new Promise(async (resolve,reject) => {
         try
         {
-            var myAPi = await myApiClass.build();
-            var isValidUser = await myAPi.isValidUser("hassanin@udel.edu","dsadsasd");
-            logger.info(`isValidUser is ${isValidUser}`);
+            global.myAPi = await myApiClass.build();
+            global.signingKey = Buffer.from(await fs.readFileASync('./config/signingKey.dat','utf8'), 'base64');
+            //logger.info(`signing key is ${global.signingKey}`);
+            // var isValidUser = await myAPi.isValidUser("hassanin@udel.edu","thomas12");
+            // logger.info(`isValidUser is ${isValidUser}`);
+            // var responseObj = await myAPi.basicSignin("hassanin@udel.edu","thomas12");
+            // logger.info(`received result of basic sign in: ${util.inspect(responseObj)}`);
             return resolve();
         }
         catch(ex)
         {
-            logger.error(`caught exception in mainMethod ${ex}`);
+            logger.error(`caught exception in initMethod ${ex}`);
             return reject(ex);
         }
     });
 }
 
-mainMethod().then(() => {logger.info(`main method finished gracefully!`);},(err)=> {logger.error(`mainMethod terminated unsucessfully with error ${err}`);})
+initMethod().then(() => {logger.info(`main method finished gracefully!`);},(err)=> {logger.error(`initMethod terminated unsucessfully with error ${err}`);})

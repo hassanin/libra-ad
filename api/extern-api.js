@@ -32,6 +32,7 @@ class externApi
         }
         else
         {
+            logger.info(`constructed user is ${util.inspect(user)}`);
             //var hashedPassword = await  bcrypt.hashASync(password, this._salt);
             var passwordsAreEqual = await bcrypt.compareAsync(password,user.hashedPassword);
             logger.info(`passwordsAreEqual is ${passwordsAreEqual}`);
@@ -46,7 +47,57 @@ class externApi
 
         }
     }
+    async appendGroup(userName,groups)
+    {
+        if(!Array.isArray(groups))
+        {
+            groups = [groups];
+        }
+        var result = await this._dataLayer.appendGroup(userName,groups);
+        return result;
+    }
 
+    async removeGroup(userName,groups)
+    {
+        if(!Array.isArray(groups))
+        {
+            groups = [groups];
+        }
+        var result = await this._dataLayer.removeGroup(userName,groups);
+        return result;
+    }
+    /**
+     * Returns the JWT token if user is in the system, otherwise, returns {inSystem:False}
+     * @param {string} username 
+     * @param {string} password 
+     */
+    async basicSignin(userName,password)
+    {
+        var user = await this._dataLayer.getUserByUsername(userName);
+        if(user == null)
+        {
+            return {"isInSystem":false,allowed:false};
+        }
+        var passwordsAreEqual = await bcrypt.compareAsync(password,user.hashedPassword);
+        if(!passwordsAreEqual)
+        {
+            /** This distinguishes the case if the username is correct, but the password is wrong,
+             * we will not display this info to the end user, but is useful for trace level and audits
+             */
+            return {"isInSystem":true,allowed:false}
+        }
+        var responseObj={
+            allowed:true,
+            "sub":user.systemID,
+            "iss":"libra-ad-mohamed",
+            "userType":user.userType,
+            "username":user.username,
+            "groups":user.groups
+
+        }
+        return responseObj;
+
+    }
     _dataLayer;
 }
 
