@@ -51,7 +51,7 @@ router.post('/basicSignIn',async (req,res) => {
     }
 });
 // Adds a group to the list of user groups
-var tokenReqruiredRoutes = [`/group`];
+var tokenReqruiredRoutes = [`/group`,`/userType`];
 
 // we can remove tokenReqruiredRoutes by ordering the routes here
 router.use(tokenReqruiredRoutes,async (req, res, next) => {
@@ -147,6 +147,31 @@ router.delete('/group', async (req, res) => {
     }
 });
 
+router.post('/userType', async (req, res) => {
+    try
+    {
+        var verifiedJwt = req.verifiedJwt;
+        var userTypeUnderAction = req.body.userType;
+        logger.debug(`received userType unberAction is ${userTypeUnderAction}`);
+        var usernameUnderAction = req.body.username;
+        var userType =  verifiedJwt.userType; // user type of the user who inatitated the request
+        logger.debug(`verified JWT is ${util.inspect(verifiedJwt)}`);
+        if(!isAdmin(userType))
+        {
+            let msg = `user is not authorized to perform action update /userType`
+            return res.status(400).json({allowed:false,msg:msg});
+        }
+        var result = await global.myAPi.changeUserType(usernameUnderAction,userTypeUnderAction);
+        logger.info(`updated document is ${util.inspect(result)}`);
+        return res.status(200).json({allowed:true,msg:`user is authorized and update completed successfully with result ${util.inspect(result)}`,origToken:verifiedJwt});
+
+    }
+    catch(ex)
+    {
+        logger.error(`caught exception ${ex}`);
+        return res.status(500).send(`caught exception : ${ex}`);
+    }
+});
 
 async function verifyToken(token)
 {
@@ -182,6 +207,14 @@ async function getPassword(req)
 function isSuperUser(userType)
 {
     if(userType == "admin" || userType == "superuser")
+        return true;
+    else
+        return false;
+}
+
+function isAdmin(userType)
+{
+    if(userType == "admin")
         return true;
     else
         return false;

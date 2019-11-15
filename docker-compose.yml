@@ -1,0 +1,32 @@
+---
+#sudo docker run -d -p 27017:27017 -v ~/data:/data/db mongo
+version: '3'
+services:
+   myMongoService:
+    image: mongo
+    # hostname: myMongo
+    container_name: mainMongo
+    # volumes:
+    #  - /e/test1:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      
+   libraAD:
+    image: mohamed1
+    # hostname: myMongo
+    container_name: mylibraContainer
+    ports:
+      - "3002:3002"
+    depends_on:
+      - myMongoService
+    environment:
+      MONGO_URL: mongodb://myMongoService:27017
+      ZOOKEEPER_TICK_TIME: 2000
+
+    
+# volumes: 
+# Mounting mongo volumes does not work on Windows!
+#   dbData: /e/test1

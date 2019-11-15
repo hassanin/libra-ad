@@ -1,4 +1,5 @@
-global.staticOptions = require('./config/static.json');
+// global.staticOptions = require('./config/static.json');
+global.staticOptions = require('./api/setParameters');
 const logger = require('./api/logger');
 var util = require('util');
 // global.mongoDbServer = require('./api/mongo-test');
@@ -10,12 +11,11 @@ var mongoConnector = require('./api/mongoConnector');
 require('./api/handleShutdown');
 var signInRoute = require('./api/signInRoute');
 var myApiClass = require('./api/extern-api'); // Singelton
-// var authenticate = require("./api/authenticate");
 global.myAPi ={}; // will be initilized later in the app
-// app.use(`/authenticate`,authenticate);
 var fs=require('fs');
 var path = require('path');
 fs.readFileASync = util.promisify(fs.readFile);
+fs.writeFileASync = util.promisify(fs.writeFile);
 logger.debug("Hello there!");
 
 const port = global.staticOptions.port || "3002";
@@ -41,12 +41,19 @@ function initMethod()
         try
         {
             global.myAPi = await myApiClass.build();
-            global.signingKey = Buffer.from(await fs.readFileASync('./config/signingKey.dat','utf8'), 'base64');
-            //logger.info(`signing key is ${global.signingKey}`);
-            // var isValidUser = await myAPi.isValidUser("hassanin@udel.edu","thomas12");
-            // logger.info(`isValidUser is ${isValidUser}`);
-            // var responseObj = await myAPi.basicSignin("hassanin@udel.edu","thomas12");
-            // logger.info(`received result of basic sign in: ${util.inspect(responseObj)}`);
+         
+            try
+            {
+                global.signingKey = Buffer.from(await fs.readFileASync('./config/signingKey.dat','utf8'), 'base64');
+                logger.info(`using signin Key from fisk`);
+            }
+            catch
+            {
+                var getSigningKey = require('./api/helper-createSigningKey').getSigningKey;
+                global.signingKey = getSigningKey();
+                await fs.writeFileASync('./config/signingKey.dat',global.signingKey,'utf8');
+                logger.info(`dynamically generated a new signing key!`);
+            }
             return resolve();
         }
         catch(ex)

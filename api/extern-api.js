@@ -66,6 +66,12 @@ class externApi
         var result = await this._dataLayer.removeGroup(userName,groups);
         return result;
     }
+
+    async changeUserType(username,userType)
+    {
+        return await this._dataLayer.updateUserType(username,userType);
+
+    }
     /**
      * Returns the JWT token if user is in the system, otherwise, returns {inSystem:False}
      * @param {string} username 

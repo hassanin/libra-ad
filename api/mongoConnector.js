@@ -101,6 +101,33 @@ class mongoConnector
         
         return results;
     }
+    /**
+     * example updateQuery={username:"Mohamed"}
+     * updatedFields={$set: {password:"dsad"}}
+     * 
+     * @param {} updateQuery 
+     * @param {*} updatedFields 
+     */
+    async updateDocument(updateQuery,updatedFields,updateOptions)
+    {
+        try
+        {
+            updateOptions = updateOptions || { returnNewDocument: true };
+            var newDocument = await this._collectionHandler.findOneAndUpdate(updateQuery,updatedFields,updateOptions);
+            return newDocument; 
+        }
+        catch(ex)
+        {
+            let msg = `update document failed with error: Caught excepption ${ex}`;
+            logger.error(msg);
+            throw msg; // let the caller handle this exception
+        }
+    }
+
+    async updateUserType(username,userType)
+    {
+        return await this.updateDocument({username:username},{$set: {userType:userType}});
+    }
 
     async removeGroup(username,groups)
     {
