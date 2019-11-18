@@ -1,4 +1,4 @@
-"# libra-ad" 
+# libra-ad
 This Project creates an identity provider that mocks Azure AD. I call it libra-AD. The identity provider exposes an API that allows for basic authentication and provides a JWT token which details the user credetnials, as well as a list of groups that the user belongs to. 
 
 # Main Features
