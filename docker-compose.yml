@@ -11,8 +11,8 @@ services:
     ports:
       - "27017:27017"
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      env1: 2181
+      env2: test
       
    libraAD:
     image: mohamed1
@@ -24,7 +24,7 @@ services:
       - myMongoService
     environment:
       MONGO_URL: mongodb://myMongoService:27017
-      ZOOKEEPER_TICK_TIME: 2000
+      env2: 2000
 
     
 # volumes: 
