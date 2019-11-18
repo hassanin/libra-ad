@@ -123,11 +123,24 @@ class mongoConnector
             throw msg; // let the caller handle this exception
         }
     }
+    /**
+     * 
+     * @param {*} userclass | must be of type userclass
+     */
+    async insertDocument(userclass)
+    {
+
+        var updateQuery={username: userclass.username};
+        var updatedFields={Groups:userclass.groups,password:userclass.hashedPassword,userType:userclass.userType};
+        var updateOptions={upsert:true};
+        return await this.updateDocument(updateQuery,{$set: updatedFields},updateOptions);
+    }
 
     async updateUserType(username,userType)
     {
         return await this.updateDocument({username:username},{$set: {userType:userType}});
     }
+    
 
     async removeGroup(username,groups)
     {

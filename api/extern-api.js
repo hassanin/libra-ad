@@ -5,6 +5,7 @@ var mongoConnector = require('./mongoConnector');
 var bcrypt = require('bcryptjs');
 bcrypt.compareAsync = util.promisify(bcrypt.compare);
 bcrypt.hashASync = util.promisify(bcrypt.hash);
+var userClass = require('./userClass');
 
 class externApi
 {
@@ -56,7 +57,19 @@ class externApi
         var result = await this._dataLayer.appendGroup(userName,groups);
         return result;
     }
-
+    async insertUser(user)
+    {
+        if(user instanceof userClass)
+        {
+            var result = await this._dataLayer.insertDocument(user);
+            return result;
+        }
+        else
+        {
+            throw `provided user object is not an instance of ${userClass}`;
+        }
+        // if(typeof user )
+    }
     async removeGroup(userName,groups)
     {
         if(!Array.isArray(groups))
